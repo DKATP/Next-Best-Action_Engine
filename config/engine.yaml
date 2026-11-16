@@ -1,0 +1,46 @@
+# Engine parameters. Change behaviour here, not in code.
+# All values are illustrative (synthetic project, no real business parameters).
+
+run:
+  snapshot_date: "2026-01-15"      # data version is pinned per run, never "today"
+  week: "2026-S03"
+
+universe:
+  mass_registration_min_lines: 8   # a person with 8+ lines is not a normal customer
+
+quality:
+  min_coverage:                    # the run stops if a key field arrives emptier than this
+    line_type: 0.99
+    tenure_months: 0.95
+    age_years: 0.95
+  max_source_age_days: 45
+
+scoring:
+  weights: {footprint: 0.4, consumption: 0.35, tenure: 0.25}
+  neutral_footprint: 50            # BU with neither rules nor model: do not invent signal
+  min_score: 0.01                  # no applicable line ends with a score of exactly 0
+  decimals: 2
+  upsell_product_cap: 4            # footprint = products that apply / cap, capped at 100%
+  upsell_priority_list_boost: 0.08 # provisional judgement, not calibrated (see docs/decisions.md)
+  postpaid_topup_threshold: 15000  # prepaid line with max 3m top-up >= this -> postpaid migration
+  migration_model_weight: 1.0      # 1 = footprint from the model; 0 = rules only
+  credit_dependent_bus: [device_financing, postpaid]
+
+upselling:
+  ott_priority: [ott_prime, ott_netflix, ott_disney, ott_sports, ott_max, ott_adult]
+  no_footprint: [ott_adult]        # needs prior opt-in, so it never adds to the footprint
+  prefixes: [ott_, tv_, addon_]
+
+care:
+  retention_risk_priorities: [CRITICAL, HIGH]
+  own_rule_cancel_intent_threshold: 2   # only used for comparison with the expert sources
+  onboarding_months: 6
+
+distribution:
+  control_ratio: 1.0               # control size as a share of treatment size
+  preselection_factor: 2           # preselect 2x quota so overlap losses can be replaced
+  one_line_per_person: true
+
+paths:
+  rules: config/rules.csv
+  quotas: config/quotas.csv

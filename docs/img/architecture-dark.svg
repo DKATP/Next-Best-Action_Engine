@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="830" viewBox="0 0 1240 830" role="img" aria-label="Next best action engine architecture">
+<rect width="1240" height="830" fill="#1a1a19"/>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#898781"/></marker></defs>
+<text x="40" y="46" fill="#f0efec" font-size="23" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Next best action engine</text>
+<text x="40" y="70" fill="#c3c2b7" font-size="13" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Decides which offer each customer gets, through which channel, and whether to contact them at all</text>
+<text x="40" y="92" fill="#898781" font-size="11" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">SOURCES</text>
+<rect x="40" y="100" width="300" height="300" rx="10" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="60" y="114" width="260" height="32" rx="8" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="74" y="135" fill="#f0efec" font-size="12.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Weekly potential file</text>
+<rect x="60" y="156" width="260" height="32" rx="8" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="74" y="177" fill="#f0efec" font-size="12.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Customer profile &amp; billing</text>
+<rect x="60" y="198" width="260" height="32" rx="8" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="74" y="219" fill="#f0efec" font-size="12.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Consumption / ARPU</text>
+<rect x="60" y="240" width="260" height="32" rx="8" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="74" y="261" fill="#f0efec" font-size="12.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Suppression &amp; arrears lists</text>
+<rect x="60" y="282" width="260" height="32" rx="8" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="74" y="303" fill="#f0efec" font-size="12.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Upstream model scores</text>
+<rect x="60" y="324" width="260" height="32" rx="8" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="74" y="345" fill="#f0efec" font-size="12.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Contact history</text>
+<text x="400" y="92" fill="#898781" font-size="11" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">ENGINE  ·  one stage, one job</text>
+<rect x="400" y="100" width="420" height="600" rx="10" fill="#15212f" stroke="#24364b" stroke-width="1"/>
+<rect x="418" y="124" width="384" height="58" rx="9" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="418" y="124" width="4" height="58" rx="2" fill="#3987e5" stroke="none" stroke-width="1"/>
+<text x="436" y="148" fill="#3987e5" font-size="12" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">00</text>
+<text x="464" y="148" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Ingest &amp; unpivot</text>
+<text x="436" y="168" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Flags normalised; meaning of a flag is config, not code</text>
+<path d="M610,182 L610,193" stroke="#898781" stroke-width="1.4" marker-end="url(#a)"/>
+<rect x="418" y="195" width="384" height="58" rx="9" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="418" y="195" width="4" height="58" rx="2" fill="#3987e5" stroke="none" stroke-width="1"/>
+<text x="436" y="219" fill="#3987e5" font-size="12" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">01</text>
+<text x="464" y="219" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Universe &amp; eligibility</text>
+<text x="436" y="239" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Mark first, exclude later; each list joined by its own key</text>
+<path d="M610,253 L610,264" stroke="#898781" stroke-width="1.4" marker-end="url(#a)"/>
+<rect x="418" y="266" width="384" height="58" rx="9" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="418" y="266" width="4" height="58" rx="2" fill="#3987e5" stroke="none" stroke-width="1"/>
+<text x="436" y="290" fill="#3987e5" font-size="12" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">02</text>
+<text x="464" y="290" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Enrichment</text>
+<text x="436" y="310" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Bands and segments; impossible values flagged, never used</text>
+<path d="M610,324 L610,335" stroke="#898781" stroke-width="1.4" marker-end="url(#a)"/>
+<rect x="418" y="337" width="384" height="58" rx="9" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="418" y="337" width="4" height="58" rx="2" fill="#3987e5" stroke="none" stroke-width="1"/>
+<text x="436" y="361" fill="#3987e5" font-size="12" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">03</text>
+<text x="464" y="361" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Business rules</text>
+<text x="436" y="381" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Editable table: points = (lift − 1) × factor</text>
+<path d="M610,395 L610,406" stroke="#898781" stroke-width="1.4" marker-end="url(#a)"/>
+<rect x="418" y="408" width="384" height="58" rx="9" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="418" y="408" width="4" height="58" rx="2" fill="#3987e5" stroke="none" stroke-width="1"/>
+<text x="436" y="432" fill="#3987e5" font-size="12" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">04</text>
+<text x="464" y="432" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Scoring</text>
+<text x="436" y="452" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">0–1 per business unit + applies flag + decile</text>
+<path d="M610,466 L610,477" stroke="#898781" stroke-width="1.4" marker-end="url(#a)"/>
+<rect x="418" y="479" width="384" height="58" rx="9" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="418" y="479" width="4" height="58" rx="2" fill="#3987e5" stroke="none" stroke-width="1"/>
+<text x="436" y="503" fill="#3987e5" font-size="12" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">05</text>
+<text x="464" y="503" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Delivery</text>
+<text x="436" y="523" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Fixed column contract, validated</text>
+<path d="M610,537 L610,548" stroke="#898781" stroke-width="1.4" marker-end="url(#a)"/>
+<rect x="418" y="550" width="384" height="58" rx="9" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="418" y="550" width="4" height="58" rx="2" fill="#3987e5" stroke="none" stroke-width="1"/>
+<text x="436" y="574" fill="#3987e5" font-size="12" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">06</text>
+<text x="464" y="574" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Traceability</text>
+<text x="436" y="594" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Funnel, source coverage, run log</text>
+<path d="M610,608 L610,619" stroke="#898781" stroke-width="1.4" marker-end="url(#a)"/>
+<rect x="418" y="621" width="384" height="58" rx="9" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="418" y="621" width="4" height="58" rx="2" fill="#3987e5" stroke="none" stroke-width="1"/>
+<text x="436" y="645" fill="#3987e5" font-size="12" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">07</text>
+<text x="464" y="645" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Distribution</text>
+<text x="436" y="665" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Quotas, one offer per line, random treatment / control</text>
+<text x="880" y="92" fill="#898781" font-size="11" font-weight="700" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">OUTPUTS</text>
+<rect x="880" y="100" width="320" height="74" rx="10" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="880" y="100" width="4" height="74" rx="2" fill="#199e70" stroke="none" stroke-width="1"/>
+<text x="900" y="128" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Delivery table</text>
+<text x="900" y="150" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">One row per line: score, applies, care action, product</text>
+<rect x="880" y="192" width="320" height="74" rx="10" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="880" y="192" width="4" height="74" rx="2" fill="#199e70" stroke="none" stroke-width="1"/>
+<text x="900" y="220" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Weekly audience</text>
+<text x="900" y="242" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Treatment and control, same score quality</text>
+<rect x="880" y="284" width="320" height="74" rx="10" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="880" y="284" width="4" height="74" rx="2" fill="#199e70" stroke="none" stroke-width="1"/>
+<text x="900" y="312" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Run evidence</text>
+<text x="900" y="334" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Funnel, coverage, execution log per run</text>
+<rect x="880" y="400" width="320" height="96" rx="10" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<rect x="880" y="400" width="4" height="96" rx="2" fill="#d95926" stroke="none" stroke-width="1"/>
+<text x="900" y="428" fill="#f0efec" font-size="13.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Measurement</text>
+<text x="900" y="450" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Incremental effect vs. control, lift by</text>
+<text x="900" y="467" fill="#c3c2b7" font-size="11.5" font-weight="400" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">decile, balance check, sample size</text>
+<text x="900" y="486" fill="#d95926" font-size="11.5" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Extension: propensity &amp; uplift models</text>
+<path d="M345,250 L392,250" stroke="#898781" stroke-width="1.6" marker-end="url(#a)"/>
+<path d="M825,250 L872,250" stroke="#898781" stroke-width="1.6" marker-end="url(#a)"/>
+<path d="M1040,496 L1040,724 L190,724 L190,410" fill="none" stroke="#898781" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#a)"/>
+<text x="1030" y="715" fill="#898781" font-size="11.5" font-weight="400" text-anchor="end" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">learning loop: rules and weights are re-tuned, never hard-coded</text>
+<rect x="40" y="748" width="1160" height="68" rx="10" fill="#222221" stroke="#2c2c2a" stroke-width="1"/>
+<text x="62" y="772" fill="#f0efec" font-size="12" font-weight="600" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">QUALITY GATES  —  the run stops rather than producing a quietly wrong output</text>
+<rect x="62" y="782" width="66.4" height="22" rx="11" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="95.2" y="797" fill="#c3c2b7" font-size="11" font-weight="500" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Schema</text>
+<rect x="136.4" y="782" width="81.2" height="22" rx="11" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="177.0" y="797" fill="#c3c2b7" font-size="11" font-weight="500" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Coverage</text>
+<rect x="225.60000000000002" y="782" width="88.60000000000001" height="22" rx="11" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="269.90000000000003" y="797" fill="#c3c2b7" font-size="11" font-weight="500" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Freshness</text>
+<rect x="322.20000000000005" y="782" width="125.60000000000001" height="22" rx="11" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="385.00000000000006" y="797" fill="#c3c2b7" font-size="11" font-weight="500" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Duplicate keys</text>
+<rect x="455.80000000000007" y="782" width="192.20000000000002" height="22" rx="11" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="551.9000000000001" y="797" fill="#c3c2b7" font-size="11" font-weight="500" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Row counts after a join</text>
+<rect x="656.0000000000001" y="782" width="140.4" height="22" rx="11" fill="#1d2a3a" stroke="none" stroke-width="1"/>
+<text x="726.2000000000002" y="797" fill="#c3c2b7" font-size="11" font-weight="500" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">Output coherence</text>
+</svg>

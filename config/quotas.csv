@@ -1,0 +1,5 @@
+segment,offer,score_col,applies_col,home_product,weekly_quota,active
+HOME,UPSELLING,score_upselling,applies_upselling,,300,true
+HOME,MOBILE_SALE_IN_HOME_BASE,score_home,applies_home,MOBILE_SALE_IN_HOME_BASE,300,true
+PREPAID,POSTPAID_MIGRATION,score_postpaid,applies_postpaid,,300,true
+PREPAID,TOPUP,score_prepaid,applies_prepaid,,300,true
