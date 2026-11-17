@@ -17,11 +17,11 @@ import matplotlib.pyplot as plt                                   # noqa: E402
 THEME = {
     "light": {"surface": "#fcfcfb", "ink": "#0b0b0b", "ink2": "#52514e", "muted": "#898781",
               "grid": "#e1e0d9", "axis": "#c3c2b7",
-              "series": ["#2a78d6", "#eb6834", "#1baf7a"],
+              "series": ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"],
               "ramp": ["#86b6ef", "#5598e7", "#2a78d6", "#1c5cab"]},
     "dark": {"surface": "#1a1a19", "ink": "#f0efec", "ink2": "#c3c2b7", "muted": "#898781",
              "grid": "#2c2c2a", "axis": "#383835",
-             "series": ["#3987e5", "#d95926", "#199e70"],
+             "series": ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#0ca30c", "#9085e9", "#e66767"],
              "ramp": ["#5598e7", "#3987e5", "#256abf", "#184f95"]},
 }
 
@@ -153,3 +153,62 @@ def chart_calibration(calibration, out_dir: Path, mode: str) -> Path:
     ax.set_axisbelow(True)
     _title(ax, t, "Is a predicted 10% really 10%?", "Ten equal-sized bins of predicted probability")
     return _save(fig, out_dir, "calibration", mode)
+
+
+def chart_survival(curves, out_dir: Path, mode: str, max_month: int = 60) -> Path:
+    """Kaplan-Meier survival by segment. The model-free look that comes before any Cox fit."""
+    t = THEME[mode]
+    fig, ax = _figure(t, 8.4, 4.4)
+    # Hues are assigned in fixed slot order and never cycled; past eight segments, fold or facet.
+    order = curves.groupby("segment")["survival"].min().sort_values().index.tolist()[:len(t["series"])]
+    label_ends = len(order) <= 4                     # beyond four, end labels collide: the legend carries identity
+    for i, segment in enumerate(order):
+        d = curves[(curves["segment"] == segment) & (curves["month"] <= max_month)].sort_values("month")
+        ax.plot(d["month"], d["survival"], color=t["series"][i], linewidth=2, label=segment, zorder=3)
+        if label_ends:
+            last = d.iloc[-1]
+            ax.text(last["month"] + 0.8, last["survival"], segment, color=t["ink2"], fontsize=9.5, va="center")
+    ax.set_xlabel("Months since acquisition", color=t["ink2"], fontsize=10)
+    ax.set_ylabel("Share still a customer", color=t["ink2"], fontsize=10)
+    ax.set_xlim(0, max_month + (17 if label_ends else 2))
+    ax.set_ylim(0, 1.02)
+    ax.grid(color=t["grid"], linewidth=0.7)
+    ax.set_axisbelow(True)
+    ax.legend(frameon=False, labelcolor=t["ink2"], fontsize=9.5, loc="lower left", ncols=3,
+              handlelength=1.6, columnspacing=1.4, borderaxespad=0.2)
+    _title(ax, t, "How long do customers stay?",
+           "Kaplan-Meier by payment behaviour, censoring customers who are still active")
+    return _save(fig, out_dir, "survival", mode)
+
+
+def chart_value_quadrant(frame, out_dir: Path, mode: str, cltv_col: str = "cltv",
+                         uplift_col: str = "uplift", sample: int = 2500) -> Path:
+    """Value against incremental response. Two different questions, and they do not agree."""
+    t = THEME[mode]
+    d = frame.sample(min(sample, len(frame)), random_state=0)
+    cut_v, cut_u = frame[cltv_col].median(), frame[uplift_col].median()
+    fig, ax = _figure(t, 7.6, 5.0)
+    for persuadable, color, label in [(True, t["series"][0], "Above-median uplift"),
+                                      (False, t["series"][1], "Below-median uplift")]:
+        sub = d[(d[uplift_col] >= cut_u) == persuadable]
+        ax.scatter(sub[cltv_col] / 1000, sub[uplift_col] * 100, s=9, c=color, alpha=0.5,
+                   linewidths=0, label=label, zorder=3)
+    ax.axvline(cut_v / 1000, color=t["muted"], linewidth=1.1, linestyle=(0, (4, 3)), zorder=2)
+    ax.axhline(cut_u * 100, color=t["muted"], linewidth=1.1, linestyle=(0, (4, 3)), zorder=2)
+    xlo, xhi = ax.get_xlim()
+    ylo, yhi = ax.get_ylim()
+    px, py = (xhi - xlo) * 0.015, (yhi - ylo) * 0.02
+    for x, y, ha, va, label in [(xhi - px, yhi - py, "right", "top", "GROW\ncontact first"),
+                                (xhi - px, ylo + py, "right", "bottom", "PROTECT\ndo not disturb"),
+                                (xlo + px, yhi - py, "left", "top", "EFFICIENT\nif capacity allows"),
+                                (xlo + px, ylo + py, "left", "bottom", "DEPRIORITISE")]:
+        ax.text(x, y, label, color=t["ink2"], fontsize=9, fontweight="600", ha=ha, va=va, linespacing=1.4)
+    ax.set_xlabel("Customer lifetime value (thousands)", color=t["ink2"], fontsize=10)
+    ax.set_ylabel("Predicted uplift (percentage points)", color=t["ink2"], fontsize=10)
+    ax.grid(color=t["grid"], linewidth=0.7)
+    ax.set_axisbelow(True)
+    ax.legend(frameon=False, labelcolor=t["ink2"], fontsize=9.5, loc="upper center",
+              bbox_to_anchor=(0.5, -0.13), ncols=2, markerscale=2.2)
+    _title(ax, t, "Worth a lot is not the same as worth contacting",
+           "Lifetime value against the incremental effect of a contact")
+    return _save(fig, out_dir, "value-quadrant", mode)

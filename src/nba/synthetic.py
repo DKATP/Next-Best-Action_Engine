@@ -16,7 +16,7 @@ SOURCE_AGE_DAYS = {"potential": 3, "billing": 5, "arpu": 12, "collections": 8, "
 
 def source_loaded_at(snapshot: str) -> dict[str, str]:
     snap = pd.Timestamp(snapshot)
-    return {k: (snap - pd.Timedelta(days=v)).strftime("%Y-%m-%d") for k, v in SOURCE_AGE_DAYS.items()}
+    return {k: (snap - pd.Timedelta(int(v), "D")).strftime("%Y-%m-%d") for k, v in SOURCE_AGE_DAYS.items()}
 
 
 def _lognormal(rng, median, sigma, n):
@@ -137,3 +137,75 @@ def simulate_purchase(df: pd.DataFrame, seed: int = 11, group_col: str | None = 
     out["purchase"] = (rng.random(n) < np.where(treated, p1, p0)).astype(int)
     out["_oracle_uplift"] = p1 - p0
     return out
+
+
+# ---------------------------------------------------------------- phase 3: lifetime value
+# Two customer bases, two data-generating processes, because they are two different problems:
+#   postpaid is CONTRACTUAL     -> churn is observed, lifetimes are right-censored
+#   prepaid  is NON-CONTRACTUAL -> nobody cancels, they just stop; "alive" has to be inferred
+TRUE_SURVIVAL_COEF = {           # log-hazard ratios used to generate the data, recoverable by Cox
+    "payment_HIGH_RISK": 0.85, "payment_VERY_GOOD": -0.45,
+    "log_arpu": -0.35, "cancel_intent": 0.55, "extra_lines": -0.30, "GEN_Z": 0.25,
+}
+TRUE_BGNBD = {"r": 0.60, "alpha": 8.0, "a": 0.90, "b": 3.0}       # transaction / dropout process
+TRUE_GAMMA_GAMMA = {"p": 6.0, "q": 4.0, "v": 10.0}                 # spend per transaction (canonical Gamma-Gamma)
+
+
+def make_contractual_history(lines: pd.DataFrame, horizon_months: int = 72, seed: int = 31) -> pd.DataFrame:
+    """Postpaid customer lifetimes, right-censored at the observation date.
+
+    A Weibull baseline hazard is scaled by exp(beta'x), so the coefficients a Cox model
+    recovers can be checked against TRUE_SURVIVAL_COEF. Most customers are still active at
+    the snapshot: that censoring is the whole reason survival analysis is needed instead of
+    simply averaging the tenure of the customers who already left.
+    """
+    rng = np.random.default_rng(seed)
+    df = lines[lines["line_type"] == "POSTPAID"].copy()
+    n = len(df)
+    pay = df["payment_behavior"].fillna("")
+    c = TRUE_SURVIVAL_COEF
+    log_hr = (c["payment_HIGH_RISK"] * (pay == "HIGH_RISK") + c["payment_VERY_GOOD"] * (pay == "VERY_GOOD")
+              + c["log_arpu"] * np.log(df["arpu_mobile"].fillna(52_000) / 52_000).clip(-1.5, 1.5)
+              + c["cancel_intent"] * (df["cancel_intent_mobile"] >= 1)
+              + c["extra_lines"] * (df["n_lines_person"] >= 2 if "n_lines_person" in df else 0)
+              + c["GEN_Z"] * (df["age_years"] < 27)).to_numpy(dtype=float)
+
+    shape, scale = 1.35, 44.0                                   # Weibull baseline, median around 3 years
+    u = rng.uniform(1e-9, 1, n)
+    lifetime = scale * (-np.log(u) / np.exp(log_hr)) ** (1 / shape)
+    observed_for = np.minimum(rng.uniform(1, horizon_months, n), horizon_months)
+    df["duration_months"] = np.maximum(np.minimum(lifetime, observed_for), 0.5).round(1)
+    df["churned"] = (lifetime <= observed_for).astype(int)       # 0 = still active = censored
+    df["monthly_margin"] = (df["arpu_mobile"].fillna(52_000) * rng.uniform(0.25, 0.40, n)).round(0)
+    return df.reset_index(drop=True)
+
+
+def make_noncontractual_history(n_customers: int = 6_000, period_weeks: float = 78.0, seed: int = 37) -> pd.DataFrame:
+    """Prepaid top-up histories drawn from a BG/NBD process with known parameters.
+
+    Each customer has a purchase rate and a dropout probability drawn from the population
+    distributions. Nobody announces they have left, so the data only ever shows frequency,
+    recency and how long we have observed them.
+    """
+    rng = np.random.default_rng(seed)
+    p = TRUE_BGNBD
+    lam = rng.gamma(p["r"], 1 / p["alpha"], n_customers)          # individual transaction rate
+    theta = rng.beta(p["a"], p["b"], n_customers)                 # dropout probability after a transaction
+    gg = TRUE_GAMMA_GAMMA
+    nu = rng.gamma(gg["q"], 1 / gg["v"], n_customers)             # individual spend RATE ~ Gamma(q, rate=v)
+
+    rows = []
+    for i in range(n_customers):
+        t, freq, recency, spends = 0.0, 0, 0.0, []
+        while True:
+            t += rng.exponential(1 / max(lam[i], 1e-9))
+            if t > period_weeks:
+                break
+            freq += 1
+            recency = t
+            spends.append(rng.gamma(gg["p"], 1 / nu[i]))         # spend ~ Gamma(shape=p, rate=nu_i)
+            if rng.random() < theta[i]:                          # silently drops out
+                break
+        rows.append({"customer_id": f"PRE{i:06d}", "frequency": freq, "recency": round(recency, 2),
+                     "T": period_weeks, "monetary_value": round(float(np.mean(spends)), 2) if spends else 0.0})
+    return pd.DataFrame(rows)

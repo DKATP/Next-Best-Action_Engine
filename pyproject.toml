@@ -1,9 +1,9 @@
 [project]
 name = "next-best-action-engine"
 version = "0.1.0"
-description = "A modular next-best-action scoring and audience-selection pipeline, with a propensity/uplift extension, on synthetic data"
+description = "A modular next-best-action decision engine with propensity, uplift and lifetime-value extensions, on synthetic data"
 requires-python = ">=3.10"
-dependencies = ["pandas>=2.0", "numpy>=1.24", "pyyaml>=6.0", "scikit-learn>=1.3"]
+dependencies = ["pandas>=2.0", "numpy>=1.24", "pyyaml>=6.0", "scikit-learn>=1.3", "scipy>=1.10", "lifelines>=0.27"]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0"]

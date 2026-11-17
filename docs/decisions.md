@@ -43,3 +43,15 @@ A fairness review is needed before using protected attributes such as gender (an
 
 ### 14. Pandas here, PySpark in production
 The original ran on Databricks with Delta tables. This version uses pandas so that anyone can run and test it without a cluster; the logic ports one-to-one (window functions for ranking, joins for lookups, Delta tables for rules and logs).
+
+### 15. Lifetime value is modelled twice, because there are two businesses
+Postpaid is contractual (churn is observed, lifetimes are right-censored) and prepaid is not (nobody cancels; "alive" is latent). Using one method for both is the standard mistake: survival analysis cannot be applied where there is no observed event, and a buy-till-you-die model throws away the cancellation signal where it exists. (`cltv.py`)
+
+### 16. Proportional hazards is tested, not assumed
+Cox rests on each covariate's effect being constant over time. The Schoenfeld-residual test is run on every covariate and reported alongside the fit, so a violation is visible rather than silently carried into the value estimate. (`cltv.check_proportional_hazards`, tested)
+
+### 17. The CLTV horizon is capped, and the cap is stated
+An uncapped expected lifetime is dominated by extrapolation far beyond the observed data. The horizon is a business decision (36 months by default) and appears in the output rather than buried in a constant. (`cltv.contractual_cltv`)
+
+### 18. Value is a guardrail, not the ranking
+The engine ranks on the expected incremental value of the contact, not on lifetime value. A high-value customer who would have bought anyway, or whose uplift is negative, is exactly who an untargeted campaign wastes budget on or actively annoys. (`cltv.expected_value_of_contact`)

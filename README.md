@@ -4,7 +4,7 @@
 [![python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](pyproject.toml)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A decision engine that answers three questions for every customer of a telecom operator: **which offer, through which channel, and whether it is prudent to contact them at all.** On top of it, a modelling extension that asks the harder question: *who buys **because** we contacted them?*
+A decision engine that answers three questions for every customer of a telecom operator: **which offer, through which channel, and whether it is prudent to contact them at all.** On top of it, two modelling extensions: *who buys **because** we contacted them?* and *how much is this customer worth over their lifetime?*
 
 > **Everything here runs on synthetic data.** No real customer, employer or operator data, code, table names or business parameters are included. Identifiers use a deliberately invalid prefix (`999…`) and every weight, band, lift and quota is invented. This is a clean re-implementation of *design patterns*, not a copy of any production system.
 
@@ -77,6 +77,45 @@ Ranking is not enough when the number itself is used — for a budget, an expect
 
 **How to read all of this honestly.** The synthetic outcome is generated from a hidden logistic function that uses some of the same variables the models see, so a learned model *should* win. These tables demonstrate the **method and the evaluation discipline**, not an effect size, and say nothing about how these models would perform on real customers. With ~10k test rows, the gap between the response and uplift models at the 10% cut is within noise; the durable signal is that ranking by *incremental* effect holds up better as the contacted share grows.
 
+## Phase 3 — customer lifetime value
+
+Phases 1 and 2 decide *who to contact*. Phase 3 asks *what the customer is worth*, which is what turns a ranking into an economic decision. The method is governed by one question, and it is the first thing an interviewer probes:
+
+| | **Contractual** (postpaid) | **Non-contractual** (prepaid) |
+|---|---|---|
+| Churn | **Observed** — the customer cancels | **Never observed** — they just stop topping up |
+| Core problem | Most customers have not churned yet: lifetimes are **censored** | Telling "dormant" from "gone" |
+| Method | Kaplan-Meier, Cox proportional hazards | BG/NBD + Gamma-Gamma |
+| Output | Expected tenure × margin, discounted | P(alive) × expected transactions × expected spend |
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/survival-dark.png">
+  <img alt="Kaplan-Meier survival curves separating sharply by payment behaviour" src="docs/img/survival-light.png">
+</picture>
+
+Averaging the tenure of customers who already left would use only the ones who left — survival analysis exists precisely to use the customers who are still here. Cox is the default over a black box because every coefficient is a hazard ratio a business owner can argue with, and because the data here was generated from a known process, the fit can be checked against the truth:
+
+| Covariate | Fitted hazard ratio | True | Reads as |
+|---|---|---|---|
+| Payment behaviour HIGH_RISK | 2.38 | 2.34 | churns sooner |
+| Has cancellation intent | 1.77 | 1.73 | churns sooner |
+| Log ARPU | 0.71 | 0.70 | stays longer |
+| Extra lines on the account | 0.73 | 0.74 | stays longer |
+| Payment behaviour VERY_GOOD | 0.67 | 0.64 | stays longer |
+
+C-index 0.62. **Proportional hazards is tested, not assumed** — Schoenfeld residuals on every covariate, which is the step most applied survival analysis skips. For prepaid, maximum likelihood recovers the generating parameters of the transaction-and-dropout process (`r` 0.63 vs 0.60, `α` 8.33 vs 8.00, `a` 0.93 vs 0.90, `b` 3.16 vs 3.00), and P(alive) falls from 0.84 for customers who bought recently to 0.12 for those silent for months — without anyone ever cancelling.
+
+### Value is not the same as worth contacting
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/value-quadrant-dark.png">
+  <img alt="Lifetime value against predicted uplift, split into four action quadrants" src="docs/img/value-quadrant-light.png">
+</picture>
+
+Three questions, three different answers: propensity says *will they buy*, uplift says *does contacting them change anything*, CLTV says *how much are they worth*. In this data they correlate only +0.28. Ranking by value alone contacts customers who would have bought anyway; the economic ranking is `uplift × offer margin − contact cost`, with CLTV as the guardrail — **a high-value, negative-uplift customer is exactly who an untargeted campaign destroys value on**.
+
+A guided study plan is in [`docs/phase3_cltv_guide.md`](docs/phase3_cltv_guide.md).
+
 ## Pipeline
 
 | Stage | Module | What it guarantees |
@@ -93,6 +132,7 @@ Ranking is not enough when the number itself is used — for a budget, an expect
 | Monitoring | `monitoring.py` | **PSI** per feature and score drift between runs — the control the original system lacked. |
 | Traceability | `trace.py` | Funnel, source coverage, run log, run-to-run comparison. |
 | Phase 2 | `propensity.py` | Grouped cross-validation, model comparison, calibration, permutation importance, two-model uplift. |
+| Phase 3 | `cltv.py` | Kaplan-Meier, Cox with a proportional-hazards test and C-index, discounted lifetime value; BG/NBD and Gamma-Gamma for the non-contractual base. |
 
 ## Run it
 
@@ -100,8 +140,9 @@ Ranking is not enough when the number itself is used — for a budget, an expect
 pip install -e ".[dev]"
 python -m nba.pipeline            # phase 1 end to end, writes CSVs to outputs/
 python examples/run_phase2.py     # propensity and uplift walk-through
+python examples/run_cltv.py       # lifetime value walk-through
 python examples/make_charts.py    # regenerate every chart in docs/img
-pytest                            # 45 tests
+pytest                            # 63 tests
 ```
 
 Behaviour changes through `config/engine.yaml`, `config/rules.csv` and `config/quotas.csv`, never through code.
@@ -122,19 +163,20 @@ Fourteen decisions, each with its reason and where it lives in the code, are in 
 | **Designed, not implemented** | Scheduled job orchestration, automated reporting, channel-level eligibility. |
 | **Not done in the original** | Performance monitoring and drift alerts; a formal model inventory by risk tier; lift-by-decile validation of the upstream models against real sales. |
 | **Measured by other teams** | The live statistical analysis of the pilot was produced by the measurement and experimentation teams. |
-| **Extension, this repository only** | Phase 2 (propensity, uplift), PSI monitoring, and the sample-size tooling. These were the planned next steps; they were never built or run in production. |
+| **Extension, this repository only** | Phase 2 (propensity, uplift), phase 3 (lifetime value), PSI monitoring and the sample-size tooling. These were the planned next steps; they were never built or run in production. |
 | **Different from the original** | Pandas instead of PySpark/Delta, synthetic data, invented parameters, and gender is deliberately **not** used as a scoring variable. |
 
 ## Layout
 
 ```
 config/    engine.yaml · rules.csv · quotas.csv
-src/nba/   quality · universe · enrichment · rules · care · scoring · delivery
-           distribution · measurement · monitoring · trace · pipeline · propensity · viz · synthetic
-tests/     45 tests — data gates, joins, scoring maths, determinism, measurement,
-           experiment design, PSI, leakage, model selection, uplift
-docs/      decisions · data_quality_lessons · data_dictionary · phase2_learning_guide
-examples/  run_phase2.py · make_charts.py
+src/nba/   quality · universe · enrichment · rules · care · scoring · delivery · distribution
+           measurement · monitoring · trace · pipeline · propensity · cltv · viz · synthetic
+tests/     63 tests — data gates, joins, scoring maths, determinism, measurement, experiment
+           design, PSI, leakage, model selection, uplift, survival, BG/NBD parameter recovery
+docs/      decisions · data_quality_lessons · data_dictionary
+           phase2_learning_guide · phase3_cltv_guide
+examples/  run_phase2.py · run_cltv.py · make_charts.py
 ```
 
 ## License
